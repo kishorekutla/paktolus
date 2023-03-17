@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Text Post Application</title>
+    <style>
+        .loader {
+            border: 10px solid #f3f3f3;
+            border-top: 10px solid #3498db;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 2s linear infinite;
+            margin: auto;
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Text Post Application</h1>
+    <p>Please enter your name:</p>
+    <input type="text" id="name">
+    <button onclick="saveName()">Enter</button>
+    <div id="post-form" style="display: none;">
+        <h2>New Post</h2>
+        <textarea id="message"></textarea>
+        <button onclick="savePost()">Post</button>
+    </div>
+    <hr>
+    <h2>Search Posts</h2>
+    <input type="text" id="search">
+    <button onclick="searchPosts()">Search</button>
+    <div id="post-list">
+        <p>Please enter your name to start.</p>
+    </div>
+
+    <script>
+        let username = '';
+
+        function saveName() {
+            username = document.getElementById('name').value;
+            if (username !== '') {
+                document.getElementById('name').value = '';
+                document.getElementById('post-form').style.display = 'block';
+                document.getElementById('post-list').innerHTML = '<p>Please create a post.</p>';
+            }
+        }
+
+        function savePost() {
+            const message = document.getElementById('message').value;
+            if (message !== '') {
+                document.getElementById('message').value = '';
+                const post = {
+                    username: username,
+                    message: message
+                };
+                let posts = JSON.parse(localStorage.getItem('posts') || '[]');
+                posts.push(post);
+                localStorage.setItem('posts', JSON.stringify(posts));
+                alert('Post saved!');
+            }
+        }
+
+        function searchPosts() {
+            const search = document.getElementById('search').value.toLowerCase();
+            if (search !== '') {
+                document.getElementById('post-list').innerHTML = '<div class="loader"></div>';
+                setTimeout(function() {
+                    let posts = JSON.parse(localStorage.getItem('posts') || '[]');
+                    posts = posts.filter(post => post.username.toLowerCase().includes(search) || post.message.toLowerCase().includes(search));
+                    if (posts.length > 0) {
+                        let html = '';
+                        posts.forEach(post => {
+                            html += '<div>';
+                            html += '<h3>' + post.username + '</h3>';
+                            html += '<p>' + post.message + '</p>';
+                            html += '</div>';
+                        });
+                        document.getElementById('post-list').innerHTML = html;
+                    } else {
+                        document.getElementById('post-list').innerHTML = '<p>No posts found. Please create a post.</p>';
+                    }
+                }, 1000);
+            }
+        }
+    </script>
+</body>
+
+</html>
